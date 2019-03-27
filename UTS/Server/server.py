@@ -15,6 +15,27 @@ sock.bind(server_address)
 # Listen for incoming connections
 sock.listen(1)
 
+def receive(connection):
+    namafile, addr = connection.recvfrom(1024)
+    datafile=""
+    print "downloading ", namafile
+    while True:
+        data = connection.recv(200)
+        if data=="FINISHED":
+            break
+        datafile+=data
+    fp = open(namafile,'wb+')
+    fp.write(datafile)
+    fp.close()
+    print namafile, "downloaded"
+
+def send(connection):
+    namafile, addr = connection.recvfrom(1024)
+    fp = open(namafile,'rb')
+    message = fp.read()
+    fp.close()
+    sendFile(message,connection)
+
 def sendFile(message,connection):
     count=0
     kirim=""
@@ -28,8 +49,6 @@ def sendFile(message,connection):
             connection.sendall(kirim)
             connection.sendall("FINISHED")
             break
-    
-
 
 #Cek File Lokal
 def checkLocalFiles():
@@ -41,14 +60,20 @@ def checkLocalFiles():
 def menuUtama(IP,PORT,connection):
     files = json.dumps(checkLocalFiles())
     sendFile(files,connection)
+    feedback, addr = connection.recvfrom(1024)
+    if feedback == "UPLOAD":
+        receive(connection)
+    elif feedback == "DOWNLOAD":
+        send(connection)
+    
 
 print 'Waiting for a connection...'
 
-# while True:
-connection, client_address = sock.accept()
-print 'Receive Connection from', client_address
-thread = Thread(target=menuUtama,args=(client_address[0],client_address[1],connection))
-thread.start()
+while True:
+    connection, client_address = sock.accept()
+    print 'Receive Connection from', client_address
+    thread = Thread(target=menuUtama,args=(client_address[0],client_address[1],connection))
+    thread.start()
 
 
 
