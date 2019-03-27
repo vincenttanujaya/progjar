@@ -49,11 +49,38 @@ def upload(namanya):
             break
 
 def menu():
-    print "---------------------------------"
+    print "-------------MENU-----------------"
     print "1. Download  : 1 nama_file"
     print "2. Upload    : 2 nama_file"
     print "3. Your list : mylist"
     print "4. Exit      : exit"
+    #Tampilan Menu
+    jawab = raw_input()
+    if jawab=="Exit":
+        sock.sendall("EXIT")
+        sock.close()
+        sys.exit()
+    elif jawab =="mylist":
+        checkLocalFiles()
+    else:
+        if jawab[0]=="1":
+            namafile=""
+            count=0
+            for x in jawab:
+                if count>1:
+                    namafile+=x
+                count+=1
+            print namafile
+            download(namafile)
+        elif jawab[0]=="2":
+            namafile=""
+            count=0
+            for x in jawab:
+                if count>1:
+                    namafile+=x
+                count+=1
+            print namafile
+            upload(namafile)
 
 def checkLocalFiles():
     file_server = []
@@ -71,35 +98,11 @@ while True:
         break
     listdir+=data
 count=1
+print "----------DIRECTORY SERVER------------"
 for files in json.loads(listdir):
     print count, files
     count+=1
-menu()
 
-#Tampilan Menu
-jawab = raw_input()
-if jawab=="Exit":
-    sock.close()
-    sys.exit()
-elif jawab =="mylist":
+while True:
     menu()
-    checkLocalFiles()
-else:
-    if jawab[0]=="1":
-        namafile=""
-        count=0
-        for x in jawab:
-            if count>1:
-                namafile+=x
-            count+=1
-        print namafile
-        download(namafile)
-    elif jawab[0]=="2":
-        namafile=""
-        count=0
-        for x in jawab:
-            if count>1:
-                namafile+=x
-            count+=1
-        print namafile
-        upload(namafile)
+    

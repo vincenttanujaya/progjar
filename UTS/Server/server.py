@@ -31,6 +31,7 @@ def receive(connection):
 
 def send(connection):
     namafile, addr = connection.recvfrom(1024)
+    print "Sending ", namafile
     fp = open(namafile,'rb')
     message = fp.read()
     fp.close()
@@ -60,11 +61,15 @@ def checkLocalFiles():
 def menuUtama(IP,PORT,connection):
     files = json.dumps(checkLocalFiles())
     sendFile(files,connection)
-    feedback, addr = connection.recvfrom(1024)
-    if feedback == "UPLOAD":
-        receive(connection)
-    elif feedback == "DOWNLOAD":
-        send(connection)
+    while True:
+        feedback, addr = connection.recvfrom(1024)
+        if feedback == "UPLOAD":
+            receive(connection)
+        elif feedback == "DOWNLOAD":
+            send(connection)
+        elif feedback == "EXIT":
+            print "Disconnected", IP
+            break
     
 
 print 'Waiting for a connection...'
